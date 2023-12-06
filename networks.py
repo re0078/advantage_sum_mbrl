@@ -89,7 +89,8 @@ class ActorNetwork(keras.Model):
         if reparameterize:
             actions = probabilities.sample()
         else:
-            actions = probabilities.rsample()
+            # actions = probabilities.rsample()
+            actions = probabilities.sample() # TODO: fix for other oses 
 
         action = tf.math.tanh(actions)
         log_probs = probabilities.log_prob(actions)
