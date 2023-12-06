@@ -213,6 +213,9 @@ class Agent:
 
     def save_models(self, epoch):
         print('... saving models on epoch {epoch} ...')
+        saving_dir = os.path.join(self.chkpt_dir, str(epoch))
+        if not os.path.exists(saving_dir):
+            os.makedirs(saving_dir)
         self.actor.save_weights(os.path.join(self.actor.checkpoint_file, str(epoch)))
         self.critic_1.save_weights(os.path.join(self.critic_1.checkpoint_file, str(epoch)))
         self.critic_2.save_weights(os.path.join(self.critic_2.checkpoint_file, str(epoch)))
