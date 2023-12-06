@@ -8,6 +8,7 @@ import gym
 import numpy as np
 import tensorflow as tf
 from sac import Agent
+import logging
 from logging import Logger
 
 if __name__ == '__main__':
@@ -21,6 +22,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     logger = Logger("advantage sum logger")
+    logger.setLevel(logging.INFO)
 
     env_id = args.env_id
     instance_number = args.instance_number
