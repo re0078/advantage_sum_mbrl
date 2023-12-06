@@ -14,7 +14,8 @@ from networks import ActorNetwork, CriticNetwork, ValueNetwork
 class Agent:
     def __init__(self, alpha=0.0003, beta=0.0003, input_dims=[8],
             env=None, env_id = 'InvertedDoublePendulum-v2', gamma=0.99, n_actions=2, max_size=1000000, tau=0.005,
-            layer1_size=256, layer2_size=256, batch_size=256, reward_scale=2, instance_number=1):
+            layer1_size=256, layer2_size=256, batch_size=256, reward_scale=2, instance_number=1, 
+            checkpt_dir='tmp', scoring_method='advantage'):
         self.gamma = gamma
         self.tau = tau
         # repaly buffer to store real env transitions
@@ -33,7 +34,9 @@ class Agent:
         self.max_action = env.action_space.high[0]
         self.min_action = env.action_space.low[0]
         self.instance_number = instance_number
-        chkpt_dir = 'tmp' + '/' + self.env_id + '/' + str(self.instance_number)
+        chkpt_dir = checkpt_dir
+        self.chkpt_dir = chkpt_dir
+        self.scoring_method = scoring_method
 
         self.actor = ActorNetwork(n_actions=n_actions, name='actor', 
                                     max_action=env.action_space.high, chkpt_dir=chkpt_dir)
@@ -208,21 +211,25 @@ class Agent:
 
         self.target_value.set_weights(weights)
 
-    def save_models(self):
-        print('... saving models ...')
-        self.actor.save_weights(self.actor.checkpoint_file)
-        self.critic_1.save_weights(self.critic_1.checkpoint_file)
-        self.critic_2.save_weights(self.critic_2.checkpoint_file)
-        self.value.save_weights(self.value.checkpoint_file)
-        self.target_value.save_weights(self.target_value.checkpoint_file)
+    def save_models(self, epoch):
+        print('... saving models on epoch {epoch} ...')
+        self.actor.save_weights(os.path.join(self.actor.checkpoint_file, str(epoch)))
+        self.critic_1.save_weights(os.path.join(self.critic_1.checkpoint_file, str(epoch)))
+        self.critic_2.save_weights(os.path.join(self.critic_2.checkpoint_file, str(epoch)))
+        self.value.save_weights(os.path.join(self.value.checkpoint_file, str(epoch)))
+        self.target_value.save_weights(os.path.join(self.target_value.checkpoint_file, str(epoch)))
+        self.memory.save_to_file(f'{self.chkpt_dir}/{epoch}/memory_rp.npz')
+        self.memory_critic_only.save_to_file(f'{self.chkpt_dir}/{epoch}/env_critic_only_rb.npz')
 
-    def load_models(self):
+    def load_models(self, epoch):
         print('... loading models ...')
-        self.actor.load_weights(self.actor.checkpoint_file)
-        self.critic_1.load_weights(self.critic_1.checkpoint_file)
-        self.critic_2.load_weights(self.critic_2.checkpoint_file)
-        self.value.load_weights(self.value.checkpoint_file)
-        self.target_value.load_weights(self.target_value.checkpoint_file)
+        self.actor.load_weights(os.path.join(self.actor.checkpoint_file, str(epoch)))
+        self.critic_1.load_weights(os.path.join(self.critic_1.checkpoint_file, str(epoch)))
+        self.critic_2.load_weights(os.path.join(self.critic_2.checkpoint_file, str(epoch)))
+        self.value.load_weights(os.path.join(self.value.checkpoint_file, str(epoch)))
+        self.target_value.load_weights(os.path.join(self.target_value.checkpoint_file, str(epoch)))
+        self.memory.load_from_file(f'{self.chkpt_dir}/{epoch}/memory_rp.npz')
+        self.memory_critic_only.load_from_file(f'{self.chkpt_dir}/{epoch}/env_critic_only_rb.npz')
 
 
     def choose_action(self, observation, internal_state, Test=False):
@@ -256,10 +263,14 @@ class Agent:
                 v2 = self.critic_2(st, mu).numpy()[0][0]
                 v = min(v1, v2)
 
-                statev = self.value(st).numpy()[0][0]
-                a = v - statev
-                values.append(a)
-
+                if self.scoring_method == "advantage":
+                    statev = self.value(st).numpy()[0][0]
+                    a = v - statev
+                    values.append(a)
+                elif self.scoring_method == "value":
+                    values.append(v)
+                else:
+                    raise NotImplementedError
 
                 if not Test:
                     self.remember_critic(obs[-1], act_sequence[-1], r, s, d)

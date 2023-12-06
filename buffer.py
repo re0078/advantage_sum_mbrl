@@ -33,3 +33,23 @@ class ReplayBuffer:
         dones = self.terminal_memory[batch]
 
         return states, actions, rewards, states_, dones
+    
+    def save_to_file(self, filename):
+        np.savez(filename,
+                 mem_size=self.mem_size,
+                 mem_cntr=self.mem_cntr,
+                 state_memory=self.state_memory,
+                 new_state_memory=self.new_state_memory,
+                 action_memory=self.action_memory,
+                 reward_memory=self.reward_memory,
+                 terminal_memory=self.terminal_memory)
+
+    def load_from_file(self, filename):
+        data = np.load(filename)
+        self.mem_size = data['mem_size']
+        self.mem_cntr = data['mem_cntr']
+        self.state_memory = data['state_memory']
+        self.new_state_memory = data['new_state_memory']
+        self.action_memory = data['action_memory']
+        self.reward_memory = data['reward_memory']
+        self.terminal_memory = data['terminal_memory']

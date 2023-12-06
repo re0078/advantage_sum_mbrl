@@ -14,14 +14,20 @@ if __name__ == '__main__':
     parser.add_argument('--env_id', type=str, help='rl environment', required=True)
     parser.add_argument('--instance_number', type=int, help='instance of the environment', default=1)
     parser.add_argument('--load_models', type=bool, help='loading trained environment', default=False)
+    parser.add_argument('--load_epoch', type=int, help='loading trained environment epoch', default=None)
+    parser.add_argument('--scoring_method', type=str, 
+                        help="scoring function approach (either 'value' or 'advantage' )", default='advantage')
     args = parser.parse_args()
 
     env_id = args.env_id
     instance_number = args.instance_number
     load_models = args.load_models
+    load_epoch = args.load_epoch
+    scoring_method = args.scoring_method
     ## Creating Directory
-    cwd = os. getcwd()
-    directory = cwd + '/' + 'tmp' + '/' + env_id + '/' + str(instance_number)
+    cwd = os.getcwd()
+    directory = f'./checkpoints/{scoring_method}/{env_id}/{str(instance_number)}'
+    directory = os.path.join(cwd, directory)
     if not os.path.exists(directory):
         os.makedirs(directory)
 
@@ -36,16 +42,18 @@ if __name__ == '__main__':
     agent = Agent(alpha=3e-4, beta=3e-4, tau=0.002,
             input_dims = env.observation_space.shape,
             env=env, env_id=env_id, batch_size=256, layer1_size=256, layer2_size=256,
-            n_actions=env.action_space.shape[0], instance_number=instance_number)
+            n_actions=env.action_space.shape[0], instance_number=instance_number,
+            checkpt_dir=directory, scoring_mode=scoring_mode)
     n_games = 50_000
     if load_models:
-        agent.load_models()
+        agent.load_models(load_epoch)
 
     best_episode_reward = env.reward_range[0]
     step_reward_list = []
     episode_reward_list = []
     step_number = 0
     ev = 0
+    save_every = 50
     reward_eval = []
     steps = []
 
@@ -91,10 +99,12 @@ if __name__ == '__main__':
         ## Saving agent if its performance gets better
         if average_episode_reward > best_episode_reward:
             best_episode_reward = average_episode_reward
-            agent.save_models()
+            agent.save_models(epoch=i)
+        elif i % save_every == 0:
+            agent.save_models(epoch=i)
 
         print('episode ', i, 'episode reward %.1f' % episode_reward, 'average episode reward %.1f' % average_episode_reward)
-        np.save(newpath1 + '/s_r_' + env_id + '_'  + str(instance_number) + '.npy', step_reward_list)
-        np.save(newpath1 + '/ep_r_' + env_id + '_'  + str(instance_number) + '.npy', episode_reward_list)
-        np.save(newpath1 + '/t_s_' + env_id + '_'  + str(instance_number) + '.npy', steps)
-        np.save(newpath1 + '/eval_' + env_id + '_' + str(instance_number) + '.npy', reward_eval)
+        np.save(directory + '/s_r_' + env_id + '_'  + str(instance_number) + '.npy', step_reward_list)
+        np.save(directory + '/ep_r_' + env_id + '_'  + str(instance_number) + '.npy', episode_reward_list)
+        np.save(directory + '/t_s_' + env_id + '_'  + str(instance_number) + '.npy', steps)
+        np.save(directory + '/eval_' + env_id + '_' + str(instance_number) + '.npy', reward_eval)
