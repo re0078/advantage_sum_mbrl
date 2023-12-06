@@ -8,6 +8,7 @@ import gym
 import numpy as np
 import tensorflow as tf
 from sac import Agent
+from logging import Logger
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -15,9 +16,11 @@ if __name__ == '__main__':
     parser.add_argument('--instance_number', type=int, help='instance of the environment', default=1)
     parser.add_argument('--load_models', type=bool, help='loading trained environment', default=False)
     parser.add_argument('--load_epoch', type=int, help='loading trained environment epoch', default=None)
-    parser.add_argument('--scoring_method', type=str, 
+    parser.add_argument('--scoring_method', type=str,
                         help="scoring function approach (either 'value' or 'advantage' )", default='advantage')
     args = parser.parse_args()
+
+    logger = Logger("advantage sum logger")
 
     env_id = args.env_id
     instance_number = args.instance_number
@@ -40,13 +43,13 @@ if __name__ == '__main__':
     ## Making the agent with initial parameters
     env = gym.make(env_id)
     agent = Agent(alpha=3e-4, beta=3e-4, tau=0.002,
-            input_dims = env.observation_space.shape,
-            env=env, env_id=env_id, batch_size=256, layer1_size=256, layer2_size=256,
-            n_actions=env.action_space.shape[0], instance_number=instance_number,
-            checkpt_dir=directory, scoring_method=scoring_method)
+                  input_dims=env.observation_space.shape,
+                  env=env, env_id=env_id, batch_size=256, layer1_size=256, layer2_size=256,
+                  n_actions=env.action_space.shape[0], instance_number=instance_number,
+                  checkpt_dir=directory, scoring_method=scoring_method)
     n_games = 50_000
     if load_models:
-        agent.load_models(load_epoch)
+        agent.load_models(load_epoch, logger)
 
     best_episode_reward = env.reward_range[0]
     step_reward_list = []
@@ -82,29 +85,29 @@ if __name__ == '__main__':
                 env1 = gym.make(env_id)
                 ep_r1 = 0
                 observation1 = env1.reset()
-                done1= False
+                done1 = False
                 ev += 1
                 while not done1:
-                   #observation1 = tf.convert_to_tensor([observation1], dtype=tf.float32)
-                   internal_state1 = env1.env.sim.get_state()
-                   #action1 = agent.actor.predict(observation1)
-                   action1 = agent.choose_action(observation1, internal_state1, Test=True)
-                   observation1, reward1, done1, _ = env1.step(action1)
-                   ep_r1 += reward1
+                    # observation1 = tf.convert_to_tensor([observation1], dtype=tf.float32)
+                    internal_state1 = env1.env.sim.get_state()
+                    # action1 = agent.actor.predict(observation1)
+                    action1 = agent.choose_action(observation1, internal_state1, Test=True)
+                    observation1, reward1, done1, _ = env1.step(action1)
+                    ep_r1 += reward1
                 reward_eval.append(ep_r1)
-                print('Eval', ev, ' : ',ep_r1)
+                logger.info(f'Eval {ev} : {ep_r1}')
         steps.append(step_number)
         episode_reward_list.append(episode_reward)
         average_episode_reward = np.mean(episode_reward_list[-100:])
         ## Saving agent if its performance gets better
         if average_episode_reward > best_episode_reward:
             best_episode_reward = average_episode_reward
-            agent.save_models(epoch=i)
+            agent.save_models(epoch=i, logger=logger)
         elif i % save_every == 0:
-            agent.save_models(epoch=i)
+            agent.save_models(epoch=i, logger=logger)
 
-        print('episode ', i, 'episode reward %.1f' % episode_reward, 'average episode reward %.1f' % average_episode_reward)
-        np.save(directory + '/s_r_' + env_id + '_'  + str(instance_number) + '.npy', step_reward_list)
-        np.save(directory + '/ep_r_' + env_id + '_'  + str(instance_number) + '.npy', episode_reward_list)
-        np.save(directory + '/t_s_' + env_id + '_'  + str(instance_number) + '.npy', steps)
+        logger.info(f'episode {i} episode reward {episode_reward} average episode reward {average_episode_reward}')
+        np.save(directory + '/s_r_' + env_id + '_' + str(instance_number) + '.npy', step_reward_list)
+        np.save(directory + '/ep_r_' + env_id + '_' + str(instance_number) + '.npy', episode_reward_list)
+        np.save(directory + '/t_s_' + env_id + '_' + str(instance_number) + '.npy', steps)
         np.save(directory + '/eval_' + env_id + '_' + str(instance_number) + '.npy', reward_eval)

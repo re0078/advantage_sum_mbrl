@@ -37,7 +37,6 @@ class ReplayBuffer:
         return states, actions, rewards, states_, dones
     
     def save_to_file(self, filename):
-        print(os.path.exists(filename))
         np.savez(filename,
              mem_size=self.mem_size,
              mem_cntr=self.mem_cntr,
