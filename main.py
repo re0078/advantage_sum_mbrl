@@ -43,7 +43,7 @@ if __name__ == '__main__':
             input_dims = env.observation_space.shape,
             env=env, env_id=env_id, batch_size=256, layer1_size=256, layer2_size=256,
             n_actions=env.action_space.shape[0], instance_number=instance_number,
-            checkpt_dir=directory, scoring_mode=scoring_mode)
+            checkpt_dir=directory, scoring_method=scoring_method)
     n_games = 50_000
     if load_models:
         agent.load_models(load_epoch)
