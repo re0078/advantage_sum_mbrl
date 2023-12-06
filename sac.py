@@ -221,6 +221,7 @@ class Agent:
         self.critic_2.save_weights(os.path.join(self.critic_2.checkpoint_file, str(epoch)))
         self.value.save_weights(os.path.join(self.value.checkpoint_file, str(epoch)))
         self.target_value.save_weights(os.path.join(self.target_value.checkpoint_file, str(epoch)))
+        print('does path exist? ', f'{self.chkpt_dir}/{epoch}/memory_rp.npz')
         self.memory.save_to_file(f'{self.chkpt_dir}/{epoch}/memory_rp.npz')
         self.memory_critic_only.save_to_file(f'{self.chkpt_dir}/{epoch}/env_critic_only_rb.npz')
 

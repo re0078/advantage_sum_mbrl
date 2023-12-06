@@ -1,3 +1,5 @@
+import os.path
+
 import numpy as np
 
 class ReplayBuffer:
@@ -35,14 +37,15 @@ class ReplayBuffer:
         return states, actions, rewards, states_, dones
     
     def save_to_file(self, filename):
+        print(os.path.exists(filename))
         np.savez(filename,
-                 mem_size=self.mem_size,
-                 mem_cntr=self.mem_cntr,
-                 state_memory=self.state_memory,
-                 new_state_memory=self.new_state_memory,
-                 action_memory=self.action_memory,
-                 reward_memory=self.reward_memory,
-                 terminal_memory=self.terminal_memory)
+             mem_size=self.mem_size,
+             mem_cntr=self.mem_cntr,
+             state_memory=self.state_memory,
+             new_state_memory=self.new_state_memory,
+             action_memory=self.action_memory,
+             reward_memory=self.reward_memory,
+             terminal_memory=self.terminal_memory)
 
     def load_from_file(self, filename):
         data = np.load(filename)
