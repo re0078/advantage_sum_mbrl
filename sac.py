@@ -212,7 +212,7 @@ class Agent:
         self.target_value.set_weights(weights)
 
     def save_models(self, epoch, logger):
-        logger.info(f'... saving models on epoch {epoch} ...')
+        logger.warning(f'... saving models on epoch {epoch} ...')
         saving_dir = os.path.join(self.chkpt_dir, str(epoch))
         if not os.path.exists(saving_dir):
             os.makedirs(saving_dir)
@@ -226,7 +226,7 @@ class Agent:
         self.memory_critic_only.save_to_file(f'{self.chkpt_dir}/{epoch}/env_critic_only_rb.npz')
 
     def load_models(self, epoch, logger):
-        logger.info('... loading models ...')
+        logger.warning('... loading models ...')
         self.actor.load_weights(os.path.join(self.actor.checkpoint_file, str(epoch)))
         self.critic_1.load_weights(os.path.join(self.critic_1.checkpoint_file, str(epoch)))
         self.critic_2.load_weights(os.path.join(self.critic_2.checkpoint_file, str(epoch)))

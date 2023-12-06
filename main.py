@@ -97,7 +97,7 @@ if __name__ == '__main__':
                     observation1, reward1, done1, _ = env1.step(action1)
                     ep_r1 += reward1
                 reward_eval.append(ep_r1)
-                logger.info(f'Eval {ev} : {ep_r1}')
+                logger.warning(f'Eval {ev} : {ep_r1}')
         steps.append(step_number)
         episode_reward_list.append(episode_reward)
         average_episode_reward = np.mean(episode_reward_list[-100:])
@@ -108,7 +108,7 @@ if __name__ == '__main__':
         elif i % save_every == 0:
             agent.save_models(epoch=i, logger=logger)
 
-        logger.info(f'episode {i} episode reward {episode_reward} average episode reward {average_episode_reward}')
+        logger.warning(f'episode {i} episode reward {episode_reward} average episode reward {average_episode_reward}')
         np.save(directory + '/s_r_' + env_id + '_' + str(instance_number) + '.npy', step_reward_list)
         np.save(directory + '/ep_r_' + env_id + '_' + str(instance_number) + '.npy', episode_reward_list)
         np.save(directory + '/t_s_' + env_id + '_' + str(instance_number) + '.npy', steps)
