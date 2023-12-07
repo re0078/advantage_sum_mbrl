@@ -62,7 +62,11 @@ if __name__ == '__main__':
     reward_eval = []
     steps = []
 
-    for i in range(n_games):
+    start_epoch = 0
+    if load_models:
+        start_epoch = load_epoch + 1
+
+    for i in range(start_epoch, n_games):
         observation = env.reset()
         done = False
         ep_length = 0
