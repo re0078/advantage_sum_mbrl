@@ -58,7 +58,7 @@ if __name__ == '__main__':
     episode_reward_list = []
     step_number = 0
     ev = 0
-    save_every = 50
+    save_every = 25
     reward_eval = []
     steps = []
 
@@ -106,10 +106,10 @@ if __name__ == '__main__':
         episode_reward_list.append(episode_reward)
         average_episode_reward = np.mean(episode_reward_list[-100:])
         ## Saving agent if its performance gets better
-        if average_episode_reward > best_episode_reward:
-            best_episode_reward = average_episode_reward
-            agent.save_models(epoch=i, logger=logger)
-        elif i % save_every == 0:
+        # if average_episode_reward > best_episode_reward:
+        #     best_episode_reward = average_episode_reward
+        #     agent.save_models(epoch=i, logger=logger)
+        if i % save_every == 0:
             agent.save_models(epoch=i, logger=logger)
 
         logger.warning(f'episode {i} episode reward {episode_reward} average episode reward {average_episode_reward}')
