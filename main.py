@@ -50,8 +50,7 @@ if __name__ == '__main__':
                   n_actions=env.action_space.shape[0], instance_number=instance_number,
                   checkpt_dir=directory, scoring_method=scoring_method)
     n_games = 50_000
-    if load_models:
-        agent.load_models(load_epoch, logger)
+    
 
     best_episode_reward = env.reward_range[0]
     step_reward_list = []
@@ -62,9 +61,14 @@ if __name__ == '__main__':
     reward_eval = []
     steps = []
 
-    start_epoch = 0
+    start_epoch = 0 
     if load_models:
+        agent.load_models(load_epoch, logger)
         start_epoch = load_epoch + 1
+        step_reward_list = np.load(directory + '/s_r_' + env_id + '_' + str(instance_number) + '.npy')
+        episode_reward_list = np.load(directory + '/ep_r_' + env_id + '_' + str(instance_number) + '.npy')
+        steps = np.load(directory + '/t_s_' + env_id + '_' + str(instance_number) + '.npy', )
+        reward_eval = np.load(directory + '/eval_' + env_id + '_' + str(instance_number) + '.npy', )
 
     for i in range(start_epoch, n_games):
         observation = env.reset()
@@ -111,9 +115,10 @@ if __name__ == '__main__':
         #     agent.save_models(epoch=i, logger=logger)
         if i % save_every == 0:
             agent.save_models(epoch=i, logger=logger)
+            np.save(directory + '/s_r_' + env_id + '_' + str(instance_number) + '.npy', step_reward_list)
+            np.save(directory + '/ep_r_' + env_id + '_' + str(instance_number) + '.npy', episode_reward_list)
+            np.save(directory + '/t_s_' + env_id + '_' + str(instance_number) + '.npy', steps)
+            np.save(directory + '/eval_' + env_id + '_' + str(instance_number) + '.npy', reward_eval)
 
         logger.warning(f'episode {i} episode reward {episode_reward} average episode reward {average_episode_reward}')
-        np.save(directory + '/s_r_' + env_id + '_' + str(instance_number) + '.npy', step_reward_list)
-        np.save(directory + '/ep_r_' + env_id + '_' + str(instance_number) + '.npy', episode_reward_list)
-        np.save(directory + '/t_s_' + env_id + '_' + str(instance_number) + '.npy', steps)
-        np.save(directory + '/eval_' + env_id + '_' + str(instance_number) + '.npy', reward_eval)
+        
