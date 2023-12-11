@@ -65,10 +65,10 @@ if __name__ == '__main__':
     if load_models:
         agent.load_models(load_epoch, logger)
         start_epoch = load_epoch + 1
-        step_reward_list = np.load(directory + '/s_r_' + env_id + '_' + str(instance_number) + '.npy')
-        episode_reward_list = np.load(directory + '/ep_r_' + env_id + '_' + str(instance_number) + '.npy')
-        steps = np.load(directory + '/t_s_' + env_id + '_' + str(instance_number) + '.npy', )
-        reward_eval = np.load(directory + '/eval_' + env_id + '_' + str(instance_number) + '.npy', )
+        step_reward_list = np.load(directory + '/s_r_' + env_id + '_' + str(instance_number) + '.npy').tolist()
+        episode_reward_list = np.load(directory + '/ep_r_' + env_id + '_' + str(instance_number) + '.npy').tolist()
+        steps = np.load(directory + '/t_s_' + env_id + '_' + str(instance_number) + '.npy', ).tolist()
+        reward_eval = np.load(directory + '/eval_' + env_id + '_' + str(instance_number) + '.npy', ).tolist()
 
     for i in range(start_epoch, n_games):
         observation = env.reset()
