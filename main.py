@@ -57,7 +57,7 @@ if __name__ == '__main__':
     episode_reward_list = []
     step_number = 0
     ev = 0
-    save_every = 25
+    save_every = 100
     reward_eval = []
     steps = []
 
