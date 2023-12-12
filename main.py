@@ -9,7 +9,7 @@ import numpy as np
 import tensorflow as tf
 from sac import Agent
 import logging
-from tensorflow.keras import keras
+import tensorflow.keras as keras
 import gc
 
 if __name__ == '__main__':
