@@ -32,10 +32,12 @@ if __name__ == '__main__':
 
     log_path = f'./logs/{scoring_method}/{env_id}/{str(instance_number)}'
     log_filename = os.path.join(log_path, 'log.txt')
-    logging.basicConfig(level=logging.INFO, filename=log_filename, format='%(message)s')
+    
 
     if not os.path.exists(log_path):
         os.makedirs(log_path)
+
+    logging.basicConfig(level=logging.INFO, filename=log_filename, format='%(message)s')
 
     ## Creating Directory
     cwd = os.getcwd()
