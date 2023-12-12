@@ -9,7 +9,6 @@ import numpy as np
 import tensorflow as tf
 from sac import Agent
 import logging
-from logging import Logger
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -19,10 +18,12 @@ if __name__ == '__main__':
     parser.add_argument('--load_epoch', type=int, help='loading trained environment epoch', default=None)
     parser.add_argument('--scoring_method', type=str,
                         help="scoring function approach (either 'value' or 'advantage' )", default='advantage')
+    parser.add_argument('--log_filename', type=str, help='log filename', default=None)
     args = parser.parse_args()
 
-    logger = Logger("advantage sum logger")
-    logger.setLevel(logging.INFO)
+    log_filename = args.log_filename
+    logging.basicConfig(level=logging.INFO, filename=log_filename, format='%(message)s')
+
 
     env_id = args.env_id
     instance_number = args.instance_number
@@ -63,7 +64,8 @@ if __name__ == '__main__':
 
     start_epoch = 0 
     if load_models:
-        agent.load_models(load_epoch, logger)
+        logging.info(f'Loading trained models from {directory}')
+        agent.load_models(load_epoch)
         start_epoch = load_epoch + 1
         step_reward_list = np.load(directory + '/s_r_' + env_id + '_' + str(instance_number) + '.npy').tolist()
         episode_reward_list = np.load(directory + '/ep_r_' + env_id + '_' + str(instance_number) + '.npy').tolist()
@@ -78,7 +80,7 @@ if __name__ == '__main__':
 
         while not done:
             ep_length += 1
-            env.render(True)
+            # env.render(True)
             internal_state = env.env.sim.get_state()
             # To choose each action we have to use both observation and internal_state.
             # internal_state is then used to initialize the onboard model.
@@ -105,7 +107,7 @@ if __name__ == '__main__':
                     observation1, reward1, done1, _ = env1.step(action1)
                     ep_r1 += reward1
                 reward_eval.append(ep_r1)
-                logger.warning(f'Eval {ev} : {ep_r1}')
+                logging.info(f'Eval {ev} : {ep_r1}')
         steps.append(step_number)
         episode_reward_list.append(episode_reward)
         average_episode_reward = np.mean(episode_reward_list[-100:])
@@ -114,11 +116,12 @@ if __name__ == '__main__':
         #     best_episode_reward = average_episode_reward
         #     agent.save_models(epoch=i, logger=logger)
         if i % save_every == 0:
-            agent.save_models(epoch=i, logger=logger)
+            logging.info(f'... saving models on epoch {i} ...')
+            agent.save_models(epoch=i)
             np.save(directory + '/s_r_' + env_id + '_' + str(instance_number) + '.npy', step_reward_list)
             np.save(directory + '/ep_r_' + env_id + '_' + str(instance_number) + '.npy', episode_reward_list)
             np.save(directory + '/t_s_' + env_id + '_' + str(instance_number) + '.npy', steps)
             np.save(directory + '/eval_' + env_id + '_' + str(instance_number) + '.npy', reward_eval)
 
-        logger.warning(f'episode {i} episode reward {episode_reward} average episode reward {average_episode_reward}')
+        logging.info(f'episode {i} episode reward {episode_reward} average episode reward {average_episode_reward}')
         

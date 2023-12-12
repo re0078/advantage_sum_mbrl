@@ -211,8 +211,7 @@ class Agent:
 
         self.target_value.set_weights(weights)
 
-    def save_models(self, epoch, logger):
-        logger.warning(f'... saving models on epoch {epoch} ...')
+    def save_models(self, epoch):
         saving_dir = os.path.join(self.chkpt_dir, str(epoch))
         if not os.path.exists(saving_dir):
             os.makedirs(saving_dir)
@@ -225,8 +224,7 @@ class Agent:
         self.memory.save_to_file(f'{self.chkpt_dir}/{epoch}/memory_rp.npz')
         self.memory_critic_only.save_to_file(f'{self.chkpt_dir}/{epoch}/env_critic_only_rb.npz')
 
-    def load_models(self, epoch, logger):
-        logger.warning('... loading models ...')
+    def load_models(self, epoch):
         self.actor.load_weights(os.path.join(self.actor.checkpoint_file, str(epoch)))
         self.critic_1.load_weights(os.path.join(self.critic_1.checkpoint_file, str(epoch)))
         self.critic_2.load_weights(os.path.join(self.critic_2.checkpoint_file, str(epoch)))
@@ -314,7 +312,7 @@ class Agent:
             observation = np.concatenate((position, velocity)).ravel()
             return observation
         
-        elif self.env_id == 'InvertedDoublePendulum-v2' :
+        elif self.env_id == 'InvertedDoublePendulum-v2':
             return np.concatenate([ env.env.env.sim.data.qpos[:1],
                                     np.sin(env.env.env.sim.data.qpos[1:]),
                                     np.cos(env.env.env.sim.data.qpos[1:]),
