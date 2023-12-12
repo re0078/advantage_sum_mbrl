@@ -9,6 +9,8 @@ import numpy as np
 import tensorflow as tf
 from sac import Agent
 import logging
+from tensorflow.keras import keras
+import gc
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -115,6 +117,10 @@ if __name__ == '__main__':
         # if average_episode_reward > best_episode_reward:
         #     best_episode_reward = average_episode_reward
         #     agent.save_models(epoch=i, logger=logger)
+
+        gc.collect()
+        keras.backend.clear_session()
+
         if i % save_every == 0:
             logging.info(f'... saving models on epoch {i} ...')
             agent.save_models(epoch=i)
