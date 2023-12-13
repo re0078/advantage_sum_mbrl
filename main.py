@@ -9,7 +9,7 @@ import numpy as np
 import tensorflow as tf
 from sac import Agent
 import logging
-from tensorflow.keras import keras
+import tensorflow.keras as keras
 import gc
 
 if __name__ == '__main__':
@@ -20,11 +20,8 @@ if __name__ == '__main__':
     parser.add_argument('--load_epoch', type=int, help='loading trained environment epoch', default=None)
     parser.add_argument('--scoring_method', type=str,
                         help="scoring function approach (either 'value' or 'advantage' )", default='advantage')
-    parser.add_argument('--log_filename', type=str, help='log filename', default=None)
+    # parser.add_argument('--log_filename', type=str, help='log filename', default=None)
     args = parser.parse_args()
-
-    log_filename = args.log_filename
-    logging.basicConfig(level=logging.INFO, filename=log_filename, format='%(message)s')
 
 
     env_id = args.env_id
@@ -32,6 +29,16 @@ if __name__ == '__main__':
     load_models = args.load_models
     load_epoch = args.load_epoch
     scoring_method = args.scoring_method
+
+    log_path = f'./logs/{scoring_method}/{env_id}/{str(instance_number)}'
+    log_filename = os.path.join(log_path, 'log.txt')
+    
+
+    if not os.path.exists(log_path):
+        os.makedirs(log_path)
+
+    logging.basicConfig(level=logging.INFO, filename=log_filename, format='%(message)s')
+
     ## Creating Directory
     cwd = os.getcwd()
     directory = f'./checkpoints/{scoring_method}/{env_id}/{str(instance_number)}'
@@ -60,7 +67,7 @@ if __name__ == '__main__':
     episode_reward_list = []
     step_number = 0
     ev = 0
-    save_every = 100
+    save_every = 50    
     reward_eval = []
     steps = []
 
