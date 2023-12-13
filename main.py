@@ -118,8 +118,7 @@ if __name__ == '__main__':
         #     best_episode_reward = average_episode_reward
         #     agent.save_models(epoch=i, logger=logger)
 
-        gc.collect()
-        keras.backend.clear_session()
+
 
         if i % save_every == 0:
             logging.info(f'... saving models on epoch {i} ...')
@@ -128,6 +127,8 @@ if __name__ == '__main__':
             np.save(directory + '/ep_r_' + env_id + '_' + str(instance_number) + '.npy', episode_reward_list)
             np.save(directory + '/t_s_' + env_id + '_' + str(instance_number) + '.npy', steps)
             np.save(directory + '/eval_' + env_id + '_' + str(instance_number) + '.npy', reward_eval)
+            gc.collect()
+            keras.backend.clear_session()
 
         logging.info(f'episode {i} episode reward {episode_reward} average episode reward {average_episode_reward}')
         
