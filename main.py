@@ -126,6 +126,7 @@ if __name__ == '__main__':
         #     agent.save_models(epoch=i, logger=logger)
 
 
+        np.save(directory + '/last_eval_' + env_id + '_' + str(instance_number) + '.npy', reward_eval)
 
         if i % save_every == 0:
             logging.info(f'... saving models on epoch {i} ...')
