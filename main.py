@@ -61,7 +61,6 @@ if __name__ == '__main__':
                   checkpt_dir=directory, scoring_method=scoring_method)
     n_games = 50_000
     
-
     best_episode_reward = env.reward_range[0]
     step_reward_list = []
     episode_reward_list = []
@@ -80,7 +79,7 @@ if __name__ == '__main__':
         episode_reward_list = np.load(directory + '/ep_r_' + env_id + '_' + str(instance_number) + '.npy').tolist()
         steps = np.load(directory + '/t_s_' + env_id + '_' + str(instance_number) + '.npy', ).tolist()
         reward_eval = np.load(directory + '/eval_' + env_id + '_' + str(instance_number) + '.npy', ).tolist()
-
+    
     for i in range(start_epoch, n_games):
         observation = env.reset()
         done = False

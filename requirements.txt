@@ -1,2 +1,4 @@
-numpy
-tensorflow
+numpy==1.24.3
+tensorflow==2.13.1
+tensorflow_probability==0.21.0
+gym==0.21.0
